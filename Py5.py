@@ -1,27 +1,27 @@
-scary_func = lambda num: 'divided by 2 and 3' \
-    if num % 6 == 0 \
-    else 'divided by 2' if num % 2 == 0 \
-    else 'divided by 3' if num % 3 == 0 \
-    else 'not divided by 2 nor 3'
-print(scary_func(5679))
+# Объявляем функцию для расчёта суммы вклада
+# Аргумент years принимает число лет, на которое рассчитан вклад
+def deposit_years(money, interest, years):
+    interest = 1 + interest/100
+    # Вместо while используем цикл for с range
+    for year in range(years):
+        money = round(interest * money, 2)
+        # Выдаём полученную сумму вклада
+        yield money
+bank3 = deposit_years(10000, 10, 3)
+sums = list(bank3)
+print(sums)
 
-full_func = lambda *args, **kwargs: (args, kwargs)
- 
-print(full_func(1,5,6,7,name='Ivan', age=25))
-# Будет напечатано:
-# ((1, 5, 6, 7), {'name': 'Ivan', 'age': 25})
+stroka = "adddddaabaaaa"
 
-def mean(*args):
-    # Среднее значение — это сумма всех значений,
-    # делённая на число этих значений
-    # Функция sum — встроенная, она возвращает
-    # сумму чисел
-    result = sum(args) / len(args)
-    return result
- 
-# Передадим аргументы в функцию через запятую,
-# чтобы посчитать их среднее
-print(mean(5,4,4,3,234,545,65,44,23))
-# Будет напечатано
-# 4.0
-# new
+def gen(str):
+    max_c = 0
+    counter = 1
+    for i in range(len(str)-1):
+        if str[i] == str[i+1]:
+            counter += 1
+        else:
+            counter = 1
+        if counter > max_c:
+            max_c = counter
+    return max_c
+print(gen(stroka))
