@@ -5,8 +5,8 @@
 import numpy as np
 
 
-def game_core_v2(number: int = 1) -> int:
-    """Угадываем число ограничивая рамки подбора
+def predict_number_less20(number: int = 1) -> int:
+    """Угадываем число ограничивая рамки подбора методом деления интервала пополам
 
     Args:
         number (int, optional): Загаданное число. Defaults to 1.
@@ -16,17 +16,17 @@ def game_core_v2(number: int = 1) -> int:
     """
     count = 0 # Переменная счетчик
     
-    min = 1 # Минимальное значение рассматриваемого интервала
-    max = 101 # Максимальное значение рассматриваемого интервала
+    min_interval = 1 # Минимальное значение рассматриваемого интервала
+    max_interval = 101 # Максимальное значение рассматриваемого интервала
 
     while True:
         count += 1
-        mid = int(( min + max ) / 2)
+        mid_interval = int(( min_interval + max_interval ) / 2) # делим интервал поиска пополам
 
-        if mid > number:
-            max = mid
-        elif mid < number:
-            min = mid
+        if mid_interval > number: # если середина интервала больше числа, устанавливаем ее за верхнюю границу интервала
+            max_interval = mid_interval
+        elif mid_interval < number: # если середина интервала меньше числа, устанавливаем ее за нижнюю границу интервала
+            min_interval = mid_interval
         else:
             break
 
@@ -34,7 +34,7 @@ def game_core_v2(number: int = 1) -> int:
 
 
 def score_game(game_core_v2) -> int:
-    """За какое количство попыток в среднем за 1000 подходов угадывает наш алгоритм
+    """За какое количество попыток в среднем за 1000 подходов угадывает наш алгоритм
 
     Args:
         random_predict ([type]): функция угадывания
@@ -47,14 +47,13 @@ def score_game(game_core_v2) -> int:
     random_array = np.random.randint(1, 101, size=(1000))  # загадали список чисел
 
     for number in random_array:
-        count_ls.append(game_core_v2(number))
+        count_ls.append(predict_number_less20(number)) # добавляем в список количество попыток
 
-    score = int(np.mean(count_ls))
-    print(count_ls)
-    print(f"Ваш алгоритм угадывает число в среднем за:{score} попыток")
+    score = int(np.mean(count_ls)) # вычисляем среднее арифметическое списка
+    print(f"Наш алгоритм угадывает число в среднем за:{score} попыток")
     return score
 
 
 if __name__ == "__main__":
     # RUN
-    score_game(game_core_v2)
+    score_game(predict_number_less20)
