@@ -4,9 +4,8 @@
 
 import numpy as np
 
-
 def predict_number_less20(number: int = 1) -> int:
-    """Угадываем число ограничивая рамки подбора методом деления интервала пополам
+    """Угадываем число, ограничивая рамки подбора методом деления интервала пополам
 
     Args:
         number (int, optional): Загаданное число. Defaults to 1.
@@ -51,6 +50,7 @@ def score_game(game_core_v2) -> int:
 
     score = int(np.mean(count_ls)) # вычисляем среднее арифметическое списка
     print(f"Наш алгоритм угадывает число в среднем за:{score} попыток")
+    
     return score
 
 
