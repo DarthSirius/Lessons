@@ -1,0 +1,26 @@
+tasks = [(36871, 'office', False),
+(40690, 'office', False),
+(35364, 'voltage', False),
+(41667, 'voltage', True),
+(33850, 'office', False)]
+
+from collections import defaultdict, deque
+
+def task_manager(a_list):
+    
+    T_dict = defaultdict(deque)
+    
+    for que, server, priority in a_list:
+#        if i[1] in T_dict:
+        if priority is True:
+            T_dict[server].appendleft(que)
+        else:
+            T_dict[server].append(que)
+#        else:
+#            T_dict[i[1]] = deque([i[0]])
+        print(T_dict)            
+    return T_dict
+    
+print(task_manager(tasks))
+# defaultdict(, {'voltage': deque([41667, 35364]),
+# 'office': deque([36871, 40690, 33850])})
