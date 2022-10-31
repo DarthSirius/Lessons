@@ -1,0 +1,617 @@
+select 
+    season,
+    SUM(home_team_goals) AS total_home_goals,
+    SUM(away_team_goals) AS total_away_goals
+from sql.matches
+group by season
+order by season ASC
+
+2.1
+SELECT count(*)
+FROM
+    sql.teams,
+    sql.matches
+
+
+2.2
+SELECT 
+    long_name, 
+    home_team_goals,
+    away_team_goals
+FROM
+    sql.teams,
+    sql.matches
+WHERE away_team_api_id = api_id
+
+
+
+3.1
+SELECT *
+FROM
+    sql.teams
+JOIN sql.matches on away_team_api_id = api_id
+
+3.2
+SELECT 
+    matches.id match_id, 
+    teams.id team_id
+FROM
+    sql.teams
+JOIN sql.matches on home_team_api_id = api_id
+ORDER BY team_id ASC
+
+3.3
+SELECT 
+    m.id, 
+    h.short_name as home_short,
+    a.short_name as away_short
+FROM
+    sql.matches m
+JOIN sql.teams h on m.home_team_api_id = h.api_id
+JOIN sql.teams a on m.away_team_api_id =a. api_id
+ORDER BY m.id ASC
+
+
+SELECT 
+    t.long_name,
+    m.home_team_goals as home_goal,
+    m.away_team_goals as away_goal
+FROM
+    sql.matches m
+    JOIN sql.teams t ON m.away_team_api_id = t.api_id
+WHERE short_name = 'GEN'
+ORDER BY t.id ASC
+
+4.2
+SELECT 
+    m.id, 
+    h.short_name as home_short,
+    a.short_name as away_short
+FROM
+    sql.matches m
+JOIN sql.teams h on m.home_team_api_id = h.api_id
+JOIN sql.teams a on m.away_team_api_id = a.api_id
+WHERE (h.long_name = 'Liverpool' OR a.long_name = 'Liverpool') AND m.season = '2011/2012'
+ORDER BY m.id ASC
+
+4.3
+SELECT
+    t.long_name
+FROM sql.matches m
+JOIN sql.teams t ON t.api_id = m.away_team_api_id
+GROUP BY t.id
+HAVING COUNT(*) > 150
+ORDER BY t.long_name
+
+5.1
+SELECT 
+    DISTINCT t.long_name
+FROM 
+    sql.matches m
+LEFT JOIN sql.teams t ON m.home_team_api_id = t.api_id OR m.away_team_api_id = t.api_id
+ORDER BY t.long_name
+
+5.2
+SELECT 
+    t.long_name,
+    COUNT(*) AS matches_cnt
+FROM 
+    sql.matches m
+LEFT JOIN sql.teams t ON m.home_team_api_id = t.api_id OR m.away_team_api_id = t.api_id
+GROUP BY t.long_name
+ORDER BY t.long_name
+
+5.3
+SELECT
+    DISTINCT
+    t1.short_name home_team, 
+    t2.short_name away_team
+FROM
+    sql.teams t1
+    CROSS JOIN sql.teams t2
+ORDER BY home_team, away_team
+
+6.2
+SELECT 
+    t.long_name,
+    COUNT(*) AS matches_cnt
+FROM
+    sql.matches m
+JOIN sql.teams t on m.home_team_api_id = t.api_id
+GROUP BY t.long_name
+HAVING t.long_name = 'Inter'
+
+6.3
+SELECT 
+    t.long_name,
+    SUM(away_team_goals) AS total_goals
+FROM
+    sql.matches m
+JOIN sql.teams t on m.away_team_api_id = t.api_id
+GROUP BY t.long_name
+ORDER BY total_goals DESC
+LIMIT 10
+
+6.4
+SELECT 
+    COUNT(*) AS matches_cnt
+FROM
+    sql.matches m
+JOIN sql.teams t on m.home_team_api_id = t.api_id
+JOIN sql.teams tt on m.away_team_api_id = tt.api_id
+WHERE (t.long_name = 'Real Madrid CF' AND tt.long_name = 'FC Barcelona') OR (tt.long_name = 'Real Madrid CF' AND t.long_name = 'FC Barcelona')
+
+SQL-4
+1.1
+SELECT 
+    c.city_name,
+    s.weight
+FROM shipment s
+JOIN city c ON s.city_id = c.city_id
+ORDER BY s.weight DESC
+---
+SELECT 
+    DISTINCT t.make
+FROM truck t
+---
+SELECT 
+    d.first_name,
+    COUNT(*)
+FROM shipment s
+JOIN driver d ON s.driver_id = d.driver_id
+GROUP BY d.first_name, s.cust_id
+ORDER BY COUNT(*) DESC
+---
+SELECT 
+    s.ship_date
+FROM shipment s
+ORDER BY s.ship_date DESC
+LIMIT 1
+---
+SELECT 
+    c.cust_name,
+    COUNT(*)
+FROM shipment s
+JOIN customer c ON s.cust_id = c.cust_id
+WHERE s.ship_date between '01-01-2017' and '12-31-2017'
+GROUP BY c.cust_name
+ORDER BY COUNT(*) DESC
+
+2.1
+--Напишите запрос, который создаёт уникальный алфавитный справочник всех городов, штатов, имён водителей и производителей грузовиков.
+--Результатом запроса должны быть два столбца: название и тип объекта (city, state, driver, truck).
+--Отсортируйте список по названию объекта, а затем — по типу.
+SELECT c.city_name as "название", 'city' as "тип объекта"
+FROM sql.city c
+UNION
+SELECT c.state, 'state'
+FROM sql.city c
+UNION
+SELECT d.first_name, 'driver'
+FROM sql.driver d
+UNION
+SELECT   t.make, 'truck'
+FROM     sql.truck t
+ORDER BY 1, 2
+
+2.2
+SELECT c.city_name object_name
+FROM sql.city c
+UNION ALL
+SELECT c.state
+FROM sql.city c
+ORDER BY 1
+
+3.1
+SELECT d.zip_code::text contact, d.first_name first_name, 'zip' contact_type
+FROM sql.driver d
+UNION ALL
+SELECT dd.phone, dd.first_name, 'phone'
+FROM sql.driver dd
+ORDER BY 1, 2
+
+4.1
+SELECT s.ship_date::text date_period, COUNT(*) cnt_shipping
+FROM sql.shipment s
+GROUP BY s.ship_date
+UNION ALL
+SELECT  'total_shipments',
+        COUNT(*)
+FROM    sql.shipment
+ORDER BY 1 DESC
+
+5.1
+SELECT
+    c.city_name, 
+    c.state,
+    'доставка осуществлялась' shipping_status
+FROM
+    sql.city c
+LEFT JOIN sql.shipment s ON c.city_id = s.city_id
+WHERE s.city_id IS NOT NULL
+UNION
+SELECT
+    c.city_name, 
+    c.state,
+    'доставка не осуществлялась' shipping_status
+FROM
+    sql.city c
+LEFT JOIN sql.shipment s ON c.city_id = s.city_id
+WHERE s.city_id IS NULL
+ORDER BY 1, 2
+
+5.2
+SELECT
+    c.city_name,
+    COUNT(*) shippings_fake
+FROM
+    sql.shipment s
+LEFT JOIN sql.city c ON s.city_id = c.city_id
+GROUP BY c.city_id
+HAVING COUNT(*) > 10
+UNION
+SELECT
+    c.city_name,
+    COUNT(*) + 5 shippings_fake
+FROM
+    sql.shipment s
+LEFT JOIN sql.city c ON s.city_id = c.city_id
+GROUP BY c.city_id
+HAVING COUNT(*) <= 10
+ORDER BY 2 DESC, 1
+
+7.1
+SELECT
+         s.zip_code zip
+FROM
+         sql.driver s
+EXCEPT
+SELECT
+         c.zip
+FROM
+         sql.customer c
+ORDER BY 1
+
+8.1
+SELECT 
+        c.city_id
+FROM 
+        sql.city c
+INTERSECT
+SELECT 
+        cc.city_id
+FROM 
+        sql.customer cc
+INTERSECT
+SELECT 
+        s.city_id
+FROM 
+        sql.shipment s
+INTERSECT
+SELECT 
+        d.city_id
+FROM 
+        sql.driver d
+
+8.2
+SELECT 
+        c.zip
+FROM 
+        sql.customer c
+INTERSECT
+SELECT 
+        d.zip_code
+FROM 
+        sql.driver d
+
+9.1
+(SELECT 
+    c.city_name,
+    s.weight
+FROM shipment s
+JOIN city c ON s.city_id = c.city_id
+ORDER BY s.weight DESC
+LIMIT 1)
+UNION
+(SELECT 
+    c.city_name,
+    s.weight
+FROM shipment s
+JOIN city c ON s.city_id = c.city_id
+ORDER BY s.weight ASC
+LIMIT 1)
+
+9.2
+SELECT 
+    c.cust_id mutual_id
+FROM customer c
+INNER JOIN shipment s ON s.ship_id = c.cust_id
+ORDER BY 1
+
+9.3
+SELECT 
+    DISTINCT c.cust_name object_name, 'КЛИЕНТ' object_description
+FROM customer c
+WHERE c.cust_type='manufacturer'
+UNION
+SELECT 
+    DISTINCT t.make, 'ГРУЗОВИК'
+FROM truck t
+ORDER BY 1
+
+SQL5
+3.1
+select now() at time zone 'America/Los_Angeles'
+3.2
+with 
+    dt_msk as (SELECT '2018-12-31 21:00:00+00'::timestamp with time zone ts),
+    dt_utc as (SELECT '2018-12-31 21:00:00+00'::timestamp with time zone UTC)
+SELECT ts as dt_msk, UTC as dt_utc from dt_msk, dt_utc
+
+4.1
+SELECT 
+    EXTRACT(YEAR FROM s.ship_date) AS year_n,
+    EXTRACT(MONTH FROM s.ship_date) AS month_n,
+    COUNT(*) qty
+FROM shipment s
+GROUP BY year_n, month_n
+ORDER BY 1, 2
+4.2
+select to_char(now() at time zone 'Europe/Moscow','"Точное время" HH24 "часов" MI "минут" SS "секунд"') msg
+
+4.3
+--Напишите запрос, который выведет дату доставки, округлённую до квартала, и общую массу доставок.
+--Отсортируйте по кварталу в порядке возрастания.
+--Столбцы в выдаче: q (начало квартала, тип date), total_weight (сумма масс доставок за квартал).
+SELECT 
+    date_trunc('quarter', s.ship_date) AS q,
+    SUM(s.weight) total_weight
+FROM sql.shipment s
+GROUP BY q
+ORDER BY 1
+
+4.4
+SELECT 
+    c.city_name,
+    MAX(s.ship_date::date) - MIN(s.ship_date::date) days_active
+FROM sql.shipment s
+JOIN city c ON s.city_id = c.city_id
+GROUP BY c.city_name
+ORDER BY 1, 2
+
+6.1
+select 'Ваш заказ доставит водитель '||d.first_name||' '||d.last_name||'. Его контактный номер: '||coalesce(d.phone,'-') msg
+from driver d
+6.2
+SELECT 
+    c.cust_id, lower(cust_name)
+FROM customer c
+JOIN shipment s ON s.cust_id = c.cust_id
+GROUP BY c.cust_id
+HAVING COUNT(*) > 10
+ORDER BY 1
+
+6.3
+SELECT 
+    lower(replace(c.city_name,' ','_')||'__'|| replace(c.state,' ','_')) utm
+FROM city c
+ORDER BY 1
+
+6.4
+WITH foo AS 
+(SELECT 
+    DISTINCT c.state
+ FROM city c
+)
+SELECT 
+    left(foo.state,4) code,
+    COUNT(*) qty
+FROM foo
+GROUP BY code
+HAVING COUNT(*) >= 2
+ORDER BY 1
+
+6.5
+SELECT 
+    format($$ %s is located in %s. There's %s people living there. Its area is %s $$, city_name, state, population, area) str
+ FROM city c
+ORDER BY 1
+
+PRJ2
+2.3
+SELECT
+    c.age,
+    COUNT(*) cnt
+FROM hh.candidate c
+GROUP BY c.age
+ORDER BY 1 DESC
+
+3.1
+SELECT
+    c.title city,
+    COUNT(c.title) cnt
+FROM hh.city c
+LEFT JOIN hh.candidate t ON c.id = t.city_id
+GROUP BY c.title
+ORDER BY 1 DESC
+
+3.2
+SELECT
+    c.gender, c.age, c.desirable_occupation, t.title city, c.employment_type
+FROM hh.candidate c
+LEFT JOIN hh.city t ON t.id = c.city_id
+WHERE t.title = 'Москва' AND c.employment_type LIKE 'проектная работа%'
+ORDER BY c.id
+
+3.3
+SELECT
+    c.gender, c.age, c.desirable_occupation, t.title city, c.employment_type
+FROM hh.candidate c
+LEFT JOIN hh.city t ON t.id = c.city_id
+WHERE lower(t.title) = 'москва' AND c.employment_type LIKE 'проектная работа%' AND (lower(c.desirable_occupation) LIKE 'разработчик%' OR lower(c.desirable_occupation) LIKE 'аналитик%' OR lower(c.desirable_occupation) LIKE 'программист%')
+ORDER BY c.id
+
+3.4
+SELECT
+    c.id,
+    t.title city
+FROM hh.candidate c
+LEFT JOIN hh.city t ON c.city_id = t.id
+WHERE c.desirable_occupation = c.current_occupation
+ORDER BY 2, 1
+
+Вывод: малоинформативная выборка, показывающая лишь наличие кандидатов у которых нет желания поменять профессию (что таковые вообще существуют).
+3.5
+SELECT
+    COUNT(c.id)
+FROM hh.candidate c
+WHERE (c.gender = 'M' AND c.age BETWEEN 65 AND 77) OR (c.gender = 'F' AND c.age BETWEEN 60 AND 77)
+Вывод: в нашей выборке есть 75 кандидатов пенсионного возраста.
+
+4.1
+SELECT
+    c.gender, c.age, c.desirable_occupation, t.title city, c.employment_type,
+    tt.title timetable_type
+FROM hh.candidate c
+LEFT JOIN hh.city t ON c.city_id = t.id
+RIGHT JOIN hh.candidate_timetable_type ctt ON c.id = ctt.id
+LEFT JOIN hh.timetable_type tt ON ctt.timetable_id = tt.id
+WHERE (t.title = 'Новосибирск' OR t.title = 'Омск' OR t.title = 'Томск' OR t.title = 'Тюмень') AND lower(tt.title) LIKE 'вахт%' 
+ORDER BY t.title, c.id
+
+4.2
+(SELECT
+    c.desirable_occupation, c.age
+FROM hh.candidate c
+LEFT JOIN hh.city t ON c.city_id = t.id
+WHERE t.title = 'Санкт-Петербург' AND c.age BETWEEN 16 AND 21
+ORDER BY 2
+LIMIT 10)
+UNION ALL
+(SELECT 'Total', COUNT(*)
+FROM hh.candidate c
+LEFT JOIN hh.city t ON c.city_id = t.id
+WHERE t.title = 'Санкт-Петербург' AND c.age BETWEEN 16 AND 21
+)
+
+ATTESTATION SQL
+
+1
+Связанная
+
+2
+DML
+
+3
+Ответ
+Неверно:
+BТаблицы movies и genres действительно связаны как «многие ко многим».
+CТаблица movies действительно связана с movie_genres как «один ко многим».
+E Пункт E содержит некорректное утверждение.
+F Пункт F содержит некорректное утверждение.
+G В таблице movie_genres атрибут id действительно является первичным ключом.
+
+4
+SELECT
+    g.name genre_name,
+    COUNT(m.id) movies_count
+FROM sqlprotest.movie_genres mg
+LEFT JOIN sqlprotest.movies m ON mg.movie_id = m.id
+LEFT JOIN sqlprotest.genres g ON mg.genre_id = g.id
+GROUP BY g.name
+HAVING COUNT(g.id) >= 3
+ORDER BY 2 DESC
+
+5
+SELECT
+    name, description
+FROM A
+UNION
+SELECT
+    name, description
+FROM B
+
+6
+3 пункт
+
+7
+Напишите запрос, с помощью которого можно выбрать фильмы, не относящиеся к жанру 'Криминал'.
+Выведите все столбцы таблицы movies. Результат должен быть отсортирован по названию фильмов по возрастанию.
+
+-- Введите свое решение ниже
+SELECT
+    m.*
+FROM sqlprotest.movie_genres mg
+JOIN sqlprotest.movies m ON mg.movie_id = m.id
+JOIN sqlprotest.genres g ON mg.genre_id = g.id
+GROUP BY m.id
+EXCEPT
+SELECT
+    m.*
+FROM sqlprotest.movie_genres mg
+JOIN sqlprotest.movies m ON mg.movie_id = m.id
+JOIN sqlprotest.genres g ON mg.genre_id = g.id
+WHERE g.name = 'Криминал'
+GROUP BY m.id
+ORDER BY 2
+
+
+8.
+Напишите запрос, который покажет три фильма, у которых есть рейтинг.
+Отсортируйте выборку по возрастанию года выхода фильма.
+Выведите все поля таблицы movies
+
+SELECT
+    m.*
+FROM sqlprotest.movie_genres mg
+LEFT JOIN sqlprotest.movies m ON mg.movie_id = m.id
+LEFT JOIN sqlprotest.genres g ON mg.genre_id = g.id
+WHERE rating IS NOT NULL
+GROUP BY m.id
+ORDER BY year
+LIMIT 3
+
+9.
+MIN, ...
+
+10.
+Напишите запрос, с помощью которого можно вычислить средний рейтинг фильмов в каждом жанре.
+Выведите два столбца: genre_name (название жанра) и average_rating (средний рейтинг).
+
+Результат отсортируйте по второму полю по убыванию.
+
+SELECT
+    g.name genre_name,
+    AVG(m.rating) average_rating
+FROM sqlprotest.movie_genres mg
+LEFT JOIN sqlprotest.movies m ON mg.movie_id = m.id
+LEFT JOIN sqlprotest.genres g ON mg.genre_id = g.id
+GROUP BY g.name
+ORDER BY 2 DESC
+
+11
+Напишите запрос, чтобы вывести все названия фильмов и их рейтинги.
+Если рейтинга нет, отобразите 0 для такого фильма. Отсортировать по названию фильма по возрастанию.
+
+SELECT
+    m.name,
+    COALESCE(m.rating, 0)
+FROM sqlprotest.movies m
+WHERE rating IS NOT NULL
+UNION
+SELECT
+    m.name,
+    COALESCE(m.rating, 0)
+FROM sqlprotest.movies m
+WHERE rating IS NULL
+ORDER BY 1
+
+
+SELECT
+    m.name,
+    COALESCE(m.rating, 0)
+FROM sqlprotest.movies m
+ORDER BY 1
+
+
+
