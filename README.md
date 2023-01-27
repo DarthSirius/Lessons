@@ -1,6 +1,9 @@
 # Lessons
 My trainings and practical works
-Python, SQL, Data Engineering, ML
+
+## Python
+## SQL
+## Data Engineering
 
 # ML trainings
 Linear Regression
