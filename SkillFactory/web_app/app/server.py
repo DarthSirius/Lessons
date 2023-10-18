@@ -4,7 +4,7 @@ import pickle
 
 app = Flask(__name__)
 
-with open('model.pkl', 'rb') as pkl_file:
+with open('./models/model.pkl', 'rb') as pkl_file:
     model = pickle.load(pkl_file)
 
 @app.route('/predict', methods=['POST'])
@@ -18,4 +18,4 @@ def predict():
     })
 
 if __name__ == '__main__':
-    app.run('localhost', 5000)
+    app.run(host='0.0.0.0', port=5000)
