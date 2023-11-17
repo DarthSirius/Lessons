@@ -10,7 +10,7 @@ with open('./models/model.pkl', 'rb') as pkl_file:
 @app.route('/predict', methods=['POST'])
 def predict():
     features = np.array(request.json)
-    features = features.reshape(1, 34) 
+    features = features.reshape(1, 33) 
     num = model.predict(features)
 
     return jsonify({
